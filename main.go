@@ -2,20 +2,33 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 const port string = ":8080"
 
 func main() {
-	fmt.Println("Hello from this side")
 
-	http.HandleFunc("/", handler)
+	fmt.Println("Initialzing Router ..")
 
-	fmt.Printf("Listening at port %s ", port)
-	http.ListenAndServe(port, nil)
-}
+	router := mux.NewRouter()
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Hello from the server")
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles("./src/template/index.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		// fmt.Println("Hello World !!")
+		err = tmpl.Execute(w, "Kiran")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+	})
+	fmt.Printf("Listening at http://localhost:%s ", port[1:])
+	http.ListenAndServe(port, router)
 }
