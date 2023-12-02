@@ -10,10 +10,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Hash map that maps all links to a randomly generated string.
+// Eg : https://youtube.com/kirankannur -> Ab63s8Uy
 var linkMap = make(map[string]string)
 
+// pool of characters where the random string is generated from
 const letters = "abacdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ0123456789"
 
+// Generates Random string of input length
 func generateRandomString(len int) string {
 
 	randomBytes := randASCIIBytes(len)
@@ -36,18 +40,23 @@ func randASCIIBytes(n int) []byte {
 	return output
 }
 
+// CheckShort func is to check for already existing map.
+// if a map already does not exist, it creates a new map.
+// 5 int has 62^5 possibilities.Meaning, 916132832 distinct links can be shortened.
 func CheckShort(link string) string {
 	short, ok := linkMap[link]
 	if ok {
 		fmt.Println("Found a short link :", short)
 		return short
 	} else {
-		shortlink := generateRandomString(8)
+		shortlink := generateRandomString(5)
 		linkMap[link] = shortlink
 		fmt.Println("Couldn't find a short link, generated a new one :", shortlink)
 		return shortlink
 	}
 }
+
+//getLonglink gets the original link from the Map.
 
 func getLongLink(shortlink string, linklist map[string]string) (string, error) {
 
@@ -60,6 +69,7 @@ func getLongLink(shortlink string, linklist map[string]string) (string, error) {
 	return "", fmt.Errorf("Could not find long link for the respective %s url", shortlink)
 }
 
+// Something redundant, used to analyze the hashmap
 func prettyPrintMap(m map[string]string) {
 	fmt.Println("Updated hash map :")
 	for key, value := range m {
@@ -67,10 +77,10 @@ func prettyPrintMap(m map[string]string) {
 	}
 }
 
-var name = generateRandomString(10)
-
+// The program works at port 8080
 const port string = ":8080"
 
+// "/" handles the task of giving short link
 func main() {
 
 	fmt.Println("Initialzing Router ..")
