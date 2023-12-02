@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -78,6 +79,7 @@ func main() {
 
 	router.HandleFunc("/", handleHome)
 	router.HandleFunc("/about", handleAbout)
+	router.HandleFunc("/short/{id}", handleRedirect)
 
 	fmt.Printf("Listening at http://localhost:%s \n", port[1:])
 	http.ListenAndServe(port, router)
@@ -101,10 +103,21 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Printf("User entered link : %s \n", link)
 		shortLink := CheckShort(link)
-		fmt.Fprintf(w, "Your shortened link : http://localhost:8080/%s \n", shortLink)
+		fmt.Fprintf(w, "Your shortened link : localhost:8080/short/%s \n", shortLink)
 		prettyPrintMap(linkMap)
 		fmt.Println("")
 	}
+}
+
+func handleRedirect(w http.ResponseWriter, r *http.Request) {
+	value := strings.TrimPrefix(r.URL.Path, "/short/")
+	redirectLink, err := getLongLink(value, linkMap)
+	if err != nil {
+		fmt.Fprintf(w, "The url you are trying to access does not exist")
+	}
+	fmt.Println("redirectlink :", redirectLink)
+	http.Redirect(w, r, redirectLink, 301)
+
 }
 
 func handleAbout(w http.ResponseWriter, r *http.Request) {
