@@ -86,7 +86,7 @@ func main() {
 	fmt.Println("Initialzing Router ..")
 
 	router := mux.NewRouter()
-
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 	router.HandleFunc("/", handleHome)
 	router.HandleFunc("/about", handleAbout)
 	router.HandleFunc("/short/{id}", handleRedirect)
@@ -96,7 +96,7 @@ func main() {
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("./src/template/index.html")
+	tmpl, err := template.ParseFiles("./template/index.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -131,7 +131,7 @@ func handleRedirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAbout(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("./src/template/about.html")
+	tmpl, err := template.ParseFiles("./template/about.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
